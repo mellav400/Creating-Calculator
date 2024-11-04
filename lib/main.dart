@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:expressions/expressions.dart';
 
 void main() {
   runApp(CalculatorApp());
@@ -8,6 +9,7 @@ class CalculatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: CalculatorScreen(),
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -23,22 +25,41 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  String display = '0';
+  String display = '';
 
   void buttonPressed(String label) {
     setState(() {
-      if (label == 'AC') {
+      if (label == 'C') {
         display = '0';
-      } else if (label == '=') {
-        // Logic for calculation here
-      } else {
+      } 
+      else if (label == '=') {
+        _calculateResult();
+      } 
+      else {
         if (display == '0') {
           display = label;
-        } else {
+        } 
+        else {
           display += label;
         }
       }
     });
+  }
+
+  void _calculateResult() {
+    try {
+      final sanitizedExpression = display
+          .replaceAll('×', '*')
+          .replaceAll('−', '-')
+          .replaceAll('÷', '/');
+
+      final expression = Expression.parse(sanitizedExpression);
+      final evaluator = const ExpressionEvaluator();
+      var result = evaluator.eval(expression, {}); // Use an empty map here
+      display = result.toString();
+    } catch (e) {
+      display = 'Nihil';
+    }
   }
 
   @override
@@ -118,7 +139,7 @@ class CalculatorButton extends StatelessWidget {
   }
 
   Color _getTextColor(String label) {
-    return Color.fromARGB(255, 50, 50, 50); // Warna latar belakang tombol yang lebih gelap
+    return Color.fromARGB(255, 50, 50, 50); // Darker button text color
   }
 
   @override
